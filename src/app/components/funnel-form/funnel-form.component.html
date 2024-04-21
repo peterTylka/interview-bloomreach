@@ -1,0 +1,16 @@
+<form>
+  <ng-container *ngFor="let event of form.controls">
+    <mat-form-field>
+      <mat-select [formControl]="event.controls.event">
+        @for (eventOption of eventOptions; track eventOption) {
+        <mat-option [value]="eventOption">{{ eventOption }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </ng-container>
+
+  <div>{{ form.value | json }}</div>
+  <button type="button" (click)="addEvent()">Add event</button>
+
+  <button type="button" (click)="onSubmit()">Submit</button>
+</form>
