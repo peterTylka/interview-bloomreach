@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { EventApiResponse } from './types';
+import { EventApiResponse } from '../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ export class EventsService {
     return this.getEventsFromApi().pipe(
       map((response) => {
         const events = response.events.map((event) => event.type);
-        console.log('%c events', 'background-color: skyblue', { events });
+        console.log('%c getEvents', 'background-color: skyblue', { events });
         return events;
       })
     );
@@ -31,7 +31,7 @@ export class EventsService {
         const propertiesObj = response.events.reduce((acc, currentValue) => {
           return { ...acc, [currentValue.type]: currentValue.properties };
         }, {});
-        console.log('%c properties', 'background-color: skyblue', {
+        console.log('%c getEventsProperties', 'background-color: skyblue', {
           propertiesObj,
         });
         return propertiesObj;

@@ -4,7 +4,7 @@
 
 - there is still work to do:
   - split big form into smaller components e.g. - Step, Attribute, Operator + Operands
-  - implement new functionalities - steps copying, attribute removal, ...
+  - implement remaining functionalities - validations, steps copying, attribute removal, ...
   - improve UI and styles
   - cleanup and refactoring
 

@@ -6,52 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { EventProperty } from '../../services/events/types';
-import { EventsService } from './../../services/events/events.service';
+import {
+  EMPTY_PROPERTY,
+  EMPTY_STEP_NAME,
+  NUMBER_OPERATORS,
+  STRING_OPERATORS,
+} from '../../constants';
+import {
+  Attribute,
+  EventProperty,
+  NumberOperator,
+  StringOperator,
+} from '../../models';
+import { getAttributeOperators, getNewOperands } from '../../utils';
+import { EventsService } from './../../services';
 
-enum StringOperator {
-  EQUAL = 'equals',
-  NOT_EQUAL = 'does not equals',
-  CONTAIN = 'contains',
-  NOT_CONTAIN = 'does not contain',
-}
-const STRING_OPERATORS = [
-  StringOperator.EQUAL,
-  StringOperator.NOT_EQUAL,
-  StringOperator.CONTAIN,
-  StringOperator.NOT_CONTAIN,
-];
-
-enum NumberOperator {
-  EQUALS = 'equals to',
-  BETWEEN = 'in between',
-  LESS = 'less than',
-  GREATER = 'greater than',
-}
-const NUMBER_OPERATORS = [
-  NumberOperator.EQUALS,
-  NumberOperator.BETWEEN,
-  NumberOperator.LESS,
-  NumberOperator.GREATER,
-];
-
-interface Attribute {
-  property: EventProperty;
-  operator: StringOperator | NumberOperator;
-  operands: string[];
-}
-
-interface FormStep {
-  name: string;
-  event: string;
-  attributes: Attribute[];
-}
-
-const EMPTY_STEP_NAME = 'Unnamed step';
-const EMPTY_PROPERTY: EventProperty = {
-  property: '',
-  type: '',
-};
 @Component({
   selector: 'app-funnel-form',
   standalone: true,
@@ -68,7 +37,7 @@ const EMPTY_PROPERTY: EventProperty = {
   styleUrl: './funnel-form.component.scss',
 })
 export class FunnelFormComponent {
-  form = this.getNewForm();
+  form = this.fb.array([this.getNewStep()]);
   eventOptions: string[] = [];
   eventsProperties: Record<string, EventProperty[]> = {};
   emptyProperty = EMPTY_PROPERTY;
@@ -77,6 +46,7 @@ export class FunnelFormComponent {
   numberOperators = NUMBER_OPERATORS;
   stringOperator = StringOperator;
   stringOperators = STRING_OPERATORS;
+  getAttributeOperators = getAttributeOperators;
 
   constructor(private fb: FormBuilder, private es: EventsService) {
     this.es.getEvents().subscribe((events) => (this.eventOptions = events));
@@ -87,8 +57,15 @@ export class FunnelFormComponent {
       );
   }
 
-  getNewForm() {
-    return this.fb.array([this.getNewStep()]);
+  onSubmit() {
+    console.log('%c SUBMIT', 'background-color: skyblue', {
+      value: this.form.value,
+    });
+  }
+
+  // STEPS METHODS
+  getStepControl(stepIndex: number) {
+    return this.form.controls[stepIndex];
   }
 
   getNewStep() {
@@ -122,23 +99,13 @@ export class FunnelFormComponent {
     }
   }
 
-  getStepControl(stepIndex: number) {
-    return this.form.controls[stepIndex];
-  }
-
+  // ATTRIBUTES METHODS
   getAttributeControl(stepIndex: number, attributeIndex: number) {
     return this.form.controls[stepIndex].controls.attributes.controls[
       attributeIndex
     ];
   }
 
-  onSubmit() {
-    console.log('%c SUBMIT', 'background-color: skyblue', {
-      value: this.form.value,
-    });
-  }
-
-  // attributes
   getEmptyAttribute() {
     return this.fb.group({
       property: EMPTY_PROPERTY,
@@ -152,14 +119,6 @@ export class FunnelFormComponent {
     stepControl.controls.attributes?.push(this.getEmptyAttribute());
   }
 
-  getAttributeOperators(property: EventProperty | null) {
-    return property?.type === 'number' ? NUMBER_OPERATORS : STRING_OPERATORS;
-  }
-
-  getNewOperands(operator: StringOperator | NumberOperator) {
-    return operator === NumberOperator.BETWEEN ? ['', ''] : [''];
-  }
-
   private patchOperatorAndOperands(
     attributeControl: any,
     operator: NumberOperator | StringOperator
@@ -168,11 +127,15 @@ export class FunnelFormComponent {
       operator: operator,
     });
     attributeControl.controls.operands.clear();
-    this.getNewOperands(operator).forEach((operand) => {
-      console.log('%c ITTERATE OPERANDS', 'background-color: orange', {
-        operator,
-        operand,
-      });
+    getNewOperands(operator).forEach((operand) => {
+      console.log(
+        '%c patchOperatorAndOperands ITERATE OPERANDS',
+        'background-color: orange',
+        {
+          operator,
+          operand,
+        }
+      );
       attributeControl.controls.operands.push(new FormControl(operand));
     });
   }
@@ -187,10 +150,12 @@ export class FunnelFormComponent {
         stepIndex,
         attributeIndex
       );
-      const operator = this.getAttributeOperators(property)[0];
+      const operator = getAttributeOperators(property)[0];
       this.patchOperatorAndOperands(attributeControl, operator);
     }
-    console.log('%c Property', 'background-color: skyblue', { property });
+    console.log('%c onChangeProperty', 'background-color: skyblue', {
+      property,
+    });
   }
 
   onChangeOperator(
@@ -205,6 +170,8 @@ export class FunnelFormComponent {
       );
       this.patchOperatorAndOperands(attributeControl, operator);
     }
-    console.log('%c Operator', 'background-color: skyblue', { operator });
+    console.log('%c onChangeOperator', 'background-color: skyblue', {
+      operator,
+    });
   }
 }
