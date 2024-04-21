@@ -1,5 +1,15 @@
 # BloomreachFunnel
 
+## Notes
+
+- there is still work to do:
+  - split big form into smaller components e.g. - Step, Attribute, Operator + Operands
+  - implement new functionalities - steps copying, attribute removal, ...
+  - improve UI and styles
+  - cleanup and refactoring
+
+## Default Readme
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.5.
 
 ## Development server
