@@ -7,27 +7,39 @@ import { MatIcon } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { EventsService } from './../../services/events/events.service';
 
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { EventProperty } from '../../services/events/types';
 
-enum StringOperand {
-  EQUALS = 'equals',
+enum StringOperator {
+  EQUAL = 'equals',
   NOT_EQUAL = 'does not equals',
-  CONTAINS = 'contains',
+  CONTAIN = 'contains',
   NOT_CONTAIN = 'does not contain',
 }
+const STRING_OPERATORS = [
+  StringOperator.EQUAL,
+  StringOperator.NOT_EQUAL,
+  StringOperator.CONTAIN,
+  StringOperator.NOT_CONTAIN,
+];
 
-enum NumberOperand {
+enum NumberOperator {
   EQUALS = 'equals to',
   BETWEEN = 'in between',
   LESS = 'less than',
   GREATER = 'greater than',
 }
+const NUMBER_OPERATORS = [
+  NumberOperator.EQUALS,
+  NumberOperator.BETWEEN,
+  NumberOperator.LESS,
+  NumberOperator.GREATER,
+];
 
 interface Attribute {
   property: EventProperty;
-  operand: StringOperand | NumberOperand;
-  operators: string[];
+  operator: StringOperator | NumberOperator;
+  operands: string[];
 }
 
 interface FormStep {
@@ -61,6 +73,11 @@ export class FunnelFormComponent {
   eventOptions: string[] = [];
   eventsProperties: Record<string, EventProperty[]> = {};
   emptyProperty = EMPTY_PROPERTY;
+
+  numberOperator = NumberOperator;
+  numberOperators = NUMBER_OPERATORS;
+  stringOperator = StringOperator;
+  stringOperators = STRING_OPERATORS;
 
   constructor(private fb: FormBuilder, private es: EventsService) {
     this.es.getEvents().subscribe((events) => (this.eventOptions = events));
@@ -110,6 +127,12 @@ export class FunnelFormComponent {
     return this.form.controls[stepIndex];
   }
 
+  getAttributeControl(stepIndex: number, attributeIndex: number) {
+    return this.form.controls[stepIndex].controls.attributes.controls[
+      attributeIndex
+    ];
+  }
+
   onSubmit() {
     console.log('%c SUBMIT', 'background-color: skyblue', {
       value: this.form.value,
@@ -120,8 +143,8 @@ export class FunnelFormComponent {
   getEmptyAttribute() {
     return this.fb.group({
       property: EMPTY_PROPERTY,
-      operand: '',
-      operators: this.fb.array([] as Attribute['operators']),
+      operator: '',
+      operands: this.fb.array([] as Attribute['operands']),
     });
   }
 
@@ -130,11 +153,59 @@ export class FunnelFormComponent {
     stepControl.controls.attributes?.push(this.getEmptyAttribute());
   }
 
+  getAttributeOperators(property: EventProperty | null) {
+    return property?.type === 'number' ? NUMBER_OPERATORS : STRING_OPERATORS;
+  }
+
+  getNewOperands(operator: StringOperator | NumberOperator) {
+    return operator === NumberOperator.BETWEEN ? ['', ''] : [''];
+  }
+
+  private patchOperatorAndOperands(
+    attributeControl: any,
+    operator: NumberOperator | StringOperator
+  ) {
+    attributeControl.patchValue({
+      operator: operator,
+    });
+    attributeControl.controls.operands.clear();
+    this.getNewOperands(operator).forEach((operand) => {
+      console.log('%c ITTERATE OPERANDS', 'background-color: orange', {
+        operator,
+        operand,
+      });
+      attributeControl.controls.operands.push(new FormControl(operand));
+    });
+  }
+
   onChangeProperty(
     stepIndex: number,
     attributeIndex: number,
-    property: string
+    property: EventProperty
   ) {
+    if (!!property) {
+      const attributeControl = this.getAttributeControl(
+        stepIndex,
+        attributeIndex
+      );
+      const operator = this.getAttributeOperators(property)[0];
+      this.patchOperatorAndOperands(attributeControl, operator);
+    }
     console.log('%c Property', 'background-color: skyblue', { property });
+  }
+
+  onChangeOperator(
+    stepIndex: number,
+    attributeIndex: number,
+    operator: StringOperator | NumberOperator
+  ) {
+    if (!!operator) {
+      const attributeControl = this.getAttributeControl(
+        stepIndex,
+        attributeIndex
+      );
+      this.patchOperatorAndOperands(attributeControl, operator);
+    }
+    console.log('%c Operator', 'background-color: skyblue', { operator });
   }
 }

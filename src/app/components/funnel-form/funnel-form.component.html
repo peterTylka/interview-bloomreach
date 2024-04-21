@@ -38,11 +38,12 @@
           <!-- ATTRIBUTES START -->
           <div *ngIf="!!step.controls.event.value">
             <!-- ATTRIBUTES ARRAY START -->
-            <ng-container
+            <div
               *ngFor="
                 let attribute of step.controls.attributes.controls;
                 let attributeIndex = index
               "
+              class="flex"
             >
               <div class="ml-3">
                 <mat-form-field>
@@ -62,8 +63,35 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-            </ng-container>
 
+              <!-- chosen attribute -->
+              <div *ngIf="!!attribute.controls.property.value?.property">
+                <div class="ml-3">
+                  <mat-form-field>
+                    <mat-select
+                      [formControl]="attribute.controls.operator"
+                      (selectionChange)="
+                        onChangeOperator(
+                          stepIndex,
+                          attributeIndex,
+                          $event.value
+                        )
+                      "
+                    >
+                      @for (operatorOption of
+                      getAttributeOperators(attribute.controls.property.value);
+                      track operatorOption) {
+                      <mat-option [value]="operatorOption">{{
+                        operatorOption
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+
+            <!-- ADD ATTRIBUTE -->
             <div class="w-full flex justify-center">
               <button
                 type="button"
@@ -81,7 +109,7 @@
             <!-- ATTRIBUTES ARRAY START -->
           </div>
 
-          <!-- ATTRIBUTS END -->
+          <!-- ATTRIBUTES END -->
 
           <div class="flex flex-grow justify-end">
             <div
