@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { EventsService } from './../../services/events/events.service';
-
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { EventProperty } from '../../services/events/types';
+import { EventsService } from './../../services/events/events.service';
 
 enum StringOperator {
   EQUAL = 'equals',
@@ -61,9 +60,9 @@ const EMPTY_PROPERTY: EventProperty = {
     CommonModule,
     MatSelectModule,
     MatIcon,
-    MatCardModule,
-    MatDividerModule,
     MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
   ],
   templateUrl: './funnel-form.component.html',
   styleUrl: './funnel-form.component.scss',

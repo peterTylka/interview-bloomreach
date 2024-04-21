@@ -46,6 +46,7 @@
               class="flex"
             >
               <div class="ml-3">
+                <!-- property of attribute -->
                 <mat-form-field>
                   <mat-select
                     [formControl]="attribute.controls.property"
@@ -64,7 +65,7 @@
                 </mat-form-field>
               </div>
 
-              <!-- chosen attribute -->
+              <!-- operator for chosen attribute -->
               <div *ngIf="!!attribute.controls.property.value?.property">
                 <div class="ml-3">
                   <mat-form-field>
@@ -89,6 +90,14 @@
                   </mat-form-field>
                 </div>
               </div>
+
+              <!-- attribute's operands -->
+              @for (operand of attribute.controls.operands.controls; track
+              operand) {
+              <mat-form-field class="ml-3">
+                <input matInput [formControl]="operand" />
+              </mat-form-field>
+              }
             </div>
 
             <!-- ADD ATTRIBUTE -->
@@ -150,4 +159,5 @@
   </div>
 </form>
 
+<!-- debug filters -->
 <div>{{ form.value | json }}</div>
