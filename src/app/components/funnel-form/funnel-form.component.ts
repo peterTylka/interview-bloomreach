@@ -9,7 +9,8 @@ import { EventsService } from './../../services/events/events.service';
 
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-const EMPTY_EVENT = { event: '' };
+const EMPTY_STEP_NAME = 'Unnamed step';
+const EMPTY_STEP = { name: EMPTY_STEP_NAME, event: '' };
 
 @Component({
   selector: 'app-funnel-form',
@@ -33,24 +34,32 @@ export class FunnelFormComponent {
   constructor(private fb: FormBuilder, private es: EventsService) {}
 
   getNewForm() {
-    return this.fb.array([this.fb.group(EMPTY_EVENT)]);
+    return this.fb.array([this.fb.group(EMPTY_STEP)]);
   }
 
-  getNewEvent() {
-    return this.fb.group(EMPTY_EVENT);
+  getNewStep() {
+    return this.fb.group(EMPTY_STEP);
   }
 
-  addEvent() {
-    this.form.push(this.getNewEvent());
+  addStep() {
+    this.form.push(this.getNewStep());
   }
 
-  deleteEvent(eventIndex: number) {
-    this.form.removeAt(eventIndex);
+  deleteStep(stepIndex: number) {
+    this.form.removeAt(stepIndex);
   }
 
-  discardFilters() {
+  discardSteps() {
     this.form.clear();
-    this.addEvent();
+    this.addStep();
+  }
+
+  changeStepName(stepIndex: number, name: string) {
+    const stepControl = this.form.controls[stepIndex];
+    // TODO: should be changed only first time ?
+    if (stepControl.value.name === EMPTY_STEP_NAME) {
+      stepControl.patchValue({ name });
+    }
   }
 
   onSubmit() {

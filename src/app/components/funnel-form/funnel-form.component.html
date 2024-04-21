@@ -6,7 +6,7 @@
         type="button"
         class="!text-red-500"
         mat-button
-        (click)="discardFilters()"
+        (click)="discardSteps()"
       >
         Discard filters
       </button>
@@ -14,48 +14,51 @@
   </div>
 
   <!-- EVENTS / STEPS -->
-  <div class="w-full">
-    <div class="flex flex-col bg-white">
-      <ng-container *ngFor="let event of form.controls; let eventIndex = index">
-        <div>
-          <div class="p-3 w-full flex flex-grow justify-between items-center">
-            <div>
-              <mat-form-field>
-                <mat-select [formControl]="event.controls.event">
-                  @for (eventOption of eventOptions; track eventOption) {
-                  <mat-option [value]="eventOption">{{
-                    eventOption
-                  }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
+  <div class="w-full p-3 flex flex-col bg-white">
+    <ng-container *ngFor="let step of form.controls; let stepIndex = index">
+      <div>
+        <div class="font-bold">
+          {{ stepIndex + 1 }}. {{ step.controls.name.value }}
+        </div>
 
-            <div class="flex flex-grow justify-end">
-              <div
-                mat-icon-button
-                color="primary"
-                (click)="deleteEvent(eventIndex)"
+        <div class="mt-2 w-full flex flex-grow justify-between items-center">
+          <div>
+            <mat-form-field>
+              <mat-select
+                [formControl]="step.controls.event"
+                (selectionChange)="changeStepName(stepIndex, $event.value)"
               >
-                <mat-icon>delete</mat-icon>
-              </div>
-            </div>
+                @for (eventOption of eventOptions; track eventOption) {
+                <mat-option [value]="eventOption">{{ eventOption }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
 
-          <hr class="divide-y-2" />
+          <div class="flex flex-grow justify-end">
+            <div
+              mat-icon-button
+              color="primary"
+              (click)="deleteStep(stepIndex)"
+            >
+              <mat-icon>delete</mat-icon>
+            </div>
+          </div>
         </div>
-      </ng-container>
 
-      <div class="w-full flex justify-center">
-        <button
-          type="button"
-          class="!text-blue-500"
-          mat-button
-          (click)="addEvent()"
-        >
-          + Add Funnel Step
-        </button>
+        <hr class="divide-y-2" />
       </div>
+    </ng-container>
+
+    <div class="w-full flex justify-center">
+      <button
+        type="button"
+        class="!text-blue-500"
+        mat-button
+        (click)="addStep()"
+      >
+        + Add Funnel Step
+      </button>
     </div>
   </div>
 
