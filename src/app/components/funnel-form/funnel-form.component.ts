@@ -29,9 +29,11 @@ const EMPTY_STEP = { name: EMPTY_STEP_NAME, event: '' };
 })
 export class FunnelFormComponent {
   form = this.getNewForm();
-  eventOptions = this.es.getEvents();
+  eventOptions: string[] = [];
 
-  constructor(private fb: FormBuilder, private es: EventsService) {}
+  constructor(private fb: FormBuilder, private es: EventsService) {
+    this.es.getEvents().subscribe((events) => (this.eventOptions = events));
+  }
 
   getNewForm() {
     return this.fb.array([this.fb.group(EMPTY_STEP)]);
