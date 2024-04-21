@@ -8,10 +8,39 @@ import { MatSelectModule } from '@angular/material/select';
 import { EventsService } from './../../services/events/events.service';
 
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { EventProperty } from '../../services/events/types';
+
+enum StringOperand {
+  EQUALS = 'equals',
+  NOT_EQUAL = 'does not equals',
+  CONTAINS = 'contains',
+  NOT_CONTAIN = 'does not contain',
+}
+
+enum NumberOperand {
+  EQUALS = 'equals to',
+  BETWEEN = 'in between',
+  LESS = 'less than',
+  GREATER = 'greater than',
+}
+
+interface Attribute {
+  property: EventProperty;
+  operand: StringOperand | NumberOperand;
+  operators: string[];
+}
+
+interface FormStep {
+  name: string;
+  event: string;
+  attributes: Attribute[];
+}
 
 const EMPTY_STEP_NAME = 'Unnamed step';
-const EMPTY_STEP = { name: EMPTY_STEP_NAME, event: '' };
-
+const EMPTY_PROPERTY: EventProperty = {
+  property: '',
+  type: '',
+};
 @Component({
   selector: 'app-funnel-form',
   standalone: true,
@@ -30,17 +59,30 @@ const EMPTY_STEP = { name: EMPTY_STEP_NAME, event: '' };
 export class FunnelFormComponent {
   form = this.getNewForm();
   eventOptions: string[] = [];
+  eventsProperties: Record<string, EventProperty[]> = {};
+  emptyProperty = EMPTY_PROPERTY;
 
   constructor(private fb: FormBuilder, private es: EventsService) {
     this.es.getEvents().subscribe((events) => (this.eventOptions = events));
+    this.es
+      .getEventsProperties()
+      .subscribe(
+        (eventProperties) => (this.eventsProperties = eventProperties)
+      );
   }
 
   getNewForm() {
-    return this.fb.array([this.fb.group(EMPTY_STEP)]);
+    return this.fb.array([this.getNewStep()]);
   }
 
   getNewStep() {
-    return this.fb.group(EMPTY_STEP);
+    return this.fb.group({
+      name: EMPTY_STEP_NAME,
+      event: '',
+      attributes: this.fb.array(
+        [] as ReturnType<typeof this.getEmptyAttribute>[]
+      ),
+    });
   }
 
   addStep() {
@@ -57,16 +99,42 @@ export class FunnelFormComponent {
   }
 
   changeStepName(stepIndex: number, name: string) {
-    const stepControl = this.form.controls[stepIndex];
+    const stepControl = this.getStepControl(stepIndex);
     // TODO: should be changed only first time ?
     if (stepControl.value.name === EMPTY_STEP_NAME) {
       stepControl.patchValue({ name });
     }
   }
 
+  getStepControl(stepIndex: number) {
+    return this.form.controls[stepIndex];
+  }
+
   onSubmit() {
     console.log('%c SUBMIT', 'background-color: skyblue', {
       value: this.form.value,
     });
+  }
+
+  // attributes
+  getEmptyAttribute() {
+    return this.fb.group({
+      property: EMPTY_PROPERTY,
+      operand: '',
+      operators: this.fb.array([] as Attribute['operators']),
+    });
+  }
+
+  addEmptyAttribute(stepIndex: number) {
+    const stepControl = this.getStepControl(stepIndex);
+    stepControl.controls.attributes?.push(this.getEmptyAttribute());
+  }
+
+  onChangeProperty(
+    stepIndex: number,
+    attributeIndex: number,
+    property: string
+  ) {
+    console.log('%c Property', 'background-color: skyblue', { property });
   }
 }

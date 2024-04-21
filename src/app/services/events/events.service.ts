@@ -1,15 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { EVENTS } from '../../../../task/events';
 import { EventApiResponse } from './types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventsService {
-  apiResponse: any = null;
-
   constructor(private http: HttpClient) {}
 
   getEventsFromApi() {
@@ -18,7 +15,6 @@ export class EventsService {
     );
   }
 
-  // TODO: get from API
   getEvents() {
     return this.getEventsFromApi().pipe(
       map((response) => {
@@ -29,8 +25,17 @@ export class EventsService {
     );
   }
 
-  getEventAttributes(eventType: string) {
-    return EVENTS?.events?.find((event) => event.type === eventType)
-      ?.properties;
+  getEventsProperties() {
+    return this.getEventsFromApi().pipe(
+      map((response) => {
+        const propertiesObj = response.events.reduce((acc, currentValue) => {
+          return { ...acc, [currentValue.type]: currentValue.properties };
+        }, {});
+        console.log('%c properties', 'background-color: skyblue', {
+          propertiesObj,
+        });
+        return propertiesObj;
+      })
+    );
   }
 }

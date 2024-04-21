@@ -5,9 +5,9 @@ export interface EventProperty {
 
 export interface Event {
   type: string;
-  properties: EventProperty[]
+  properties: EventProperty[];
 }
 
 export interface EventApiResponse {
-  events: Event[]
+  events: Event[];
 }

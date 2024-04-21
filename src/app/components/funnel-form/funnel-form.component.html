@@ -35,6 +35,54 @@
             </mat-form-field>
           </div>
 
+          <!-- ATTRIBUTES START -->
+          <div *ngIf="!!step.controls.event.value">
+            <!-- ATTRIBUTES ARRAY START -->
+            <ng-container
+              *ngFor="
+                let attribute of step.controls.attributes.controls;
+                let attributeIndex = index
+              "
+            >
+              <div class="ml-3">
+                <mat-form-field>
+                  <mat-select
+                    [formControl]="attribute.controls.property"
+                    (selectionChange)="
+                      onChangeProperty(stepIndex, attributeIndex, $event.value)
+                    "
+                  >
+                    @for (propertyOption of
+                    eventsProperties[step.controls.event.value]; track
+                    propertyOption) {
+                    <mat-option [value]="propertyOption">{{
+                      propertyOption.property
+                    }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <div class="w-full flex justify-center">
+              <button
+                type="button"
+                class="!text-blue-500"
+                mat-button
+                (click)="addEmptyAttribute(stepIndex)"
+              >
+                {{
+                  step.controls.attributes.value.length
+                    ? "Refine more"
+                    : "+ Add an event attribute"
+                }}
+              </button>
+            </div>
+            <!-- ATTRIBUTES ARRAY START -->
+          </div>
+
+          <!-- ATTRIBUTS END -->
+
           <div class="flex flex-grow justify-end">
             <div
               mat-icon-button
